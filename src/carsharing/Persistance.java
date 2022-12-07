@@ -1,6 +1,5 @@
 package carsharing;
 
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -29,22 +28,14 @@ public class Persistance {
 
     }
 
-    public void execute(String statement) throws SQLException {
+    public ResultSet execute(String statement) throws SQLException {
         Connection conn = null;
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = null;
         stmt = conn.createStatement();
         ResultSet resultSet = stmt.executeQuery(statement);
-        boolean empty = true;
-        while(resultSet.next()) {
-                empty = false;
-                System.out.print(resultSet.getString(1) + ". ");
-                System.out.println(resultSet.getString(2));
-        }
-        if(empty) {
-            System.out.println("The company list is empty!");
-        }
-        System.out.println();
+        conn.setAutoCommit(true);
+        return resultSet;
     }
 
     public void insert(String statement) throws SQLException {
@@ -53,6 +44,16 @@ public class Persistance {
         Statement stmt = null;
         stmt = conn.createStatement();
         stmt.executeUpdate("INSERT INTO COMPANY (NAME) VALUES ('%s')".formatted(statement));
+        conn.setAutoCommit(true);
+    }
+
+    public void insertCar(String name, long id) throws SQLException {
+        Connection conn = null;
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = null;
+        stmt = conn.createStatement();
+        stmt.executeUpdate("INSERT INTO CAR (NAME, COMPANY_ID) VALUES ('%s', '%d')".formatted(name,id));
+        conn.setAutoCommit(true);
     }
 
     public void connect() {
@@ -67,11 +68,15 @@ public class Persistance {
 
             stmt = conn.createStatement();
             String sqlCreate =  "CREATE TABLE IF NOT EXISTS COMPANY(" +
-                    " ID INTEGER NOT NULL AUTO_INCREMENT, " +
-                    " NAME VARCHAR(255) NOT NULL UNIQUE, " +
-                    " PRIMARY KEY (ID))";
+                    " ID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    " NAME VARCHAR(255) NOT NULL UNIQUE)";
             stmt.executeUpdate(sqlCreate);
-
+            String sqlCreate1 =  "CREATE TABLE IF NOT EXISTS CAR(" +
+                    "ID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                    "NAME VARCHAR(255) NOT NULL UNIQUE," +
+                    "COMPANY_ID INTEGER NOT NULL," +
+                    "FOREIGN KEY (COMPANY_ID) REFERENCES COMPANY(ID))";
+            stmt.executeUpdate(sqlCreate1);
             conn.setAutoCommit(true);
             stmt.close();
             conn.close();
