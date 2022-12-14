@@ -1,5 +1,3 @@
-package carsharing;
-
 public class Car {
     private String name;
     private long id;

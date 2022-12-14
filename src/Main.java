@@ -1,4 +1,3 @@
-package carsharing;
 
 import java.sql.SQLException;
 
@@ -8,5 +7,6 @@ public class Main {
         // write your code here
         Menu menu = new Menu(args);
         menu.mainMenu();
+        menu.persistance.close();
     }
 }
